@@ -1,0 +1,39 @@
+name: Build Nova VPN APK
+
+on:
+  workflow_dispatch:
+  push:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download repository
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v6
+        with:
+          gradle-version: '8.10'
+
+      - name: Extract Nova VPN project
+        run: |
+          mkdir nova-project
+          unzip -q NovaVPN_zero_budget.zip -d nova-project
+
+      - name: Build APK
+        working-directory: nova-project
+        run: gradle assembleDebug
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v7
+        with:
+          name: NovaVPN-APK
+          path: nova-project/app/build/outputs/apk/debug/app-debug.apk
